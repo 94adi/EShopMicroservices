@@ -1,9 +1,11 @@
 using BuildingBlocks.Exceptions.Handler;
+using Discount.Grpc;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//App services
 var assembly = typeof(Program).Assembly;
 
 var databaseConnectionString = builder.Configuration.GetConnectionString("Database");
@@ -19,6 +21,7 @@ builder.Services.AddMediatR(config =>
     config.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
 
+//Data Services
 builder.Services.AddMarten(opts =>
 {
     opts.Connection(databaseConnectionString!);
@@ -31,6 +34,22 @@ builder.Services.Decorate<IShoppingCartRepository, CachedBasketRepository>();
 builder.Services.AddStackExchangeRedisCache(opt =>
 {
     opt.Configuration = redisConnectionString;
+});
+
+//TODO: Add gRPC services
+builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(opt =>
+{
+    opt.Address = new Uri(builder.Configuration["GrpcSettings:DiscountUrl"]!);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback =
+        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    };
+
+    return handler;
 });
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
