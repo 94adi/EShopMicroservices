@@ -10,7 +10,7 @@ namespace Ordering.Application.Orders.Commands.DeleteOrder
                 throw new ArgumentNullException(nameof(command));
             }
 
-            var order = await context.Orders.FirstOrDefaultAsync(o => o.Id.Value == command.Id);
+            var order = await context.Orders.FirstOrDefaultAsync(o => o.Id == OrderId.Of(command.Id));
 
             if(order is null)
             {

@@ -19,7 +19,7 @@ namespace Ordering.Application.Orders.Queries.GetOrders
             var orders = await context.Orders
                 .Include(o => o.OrderItems)
                 .AsNoTracking()
-                .OrderBy(o => o.OrderItems)
+                .OrderBy(o => o.OrderName.Value)
                 .Skip(itemsToSkip)
                 .Take(query.PaginationRequest.PageSize)
                 .ToListAsync();

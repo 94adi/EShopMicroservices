@@ -9,7 +9,7 @@
             var orders = await context.Orders
                 .Include(o => o.OrderItems)
                 .AsNoTracking()
-                .Where(o => o.CustomerId.Value == query.CustomerId.Value)
+                .Where(o => o.CustomerId == query.CustomerId)
                 .OrderBy(o => o.OrderName.Value)
                 .ToListAsync(cancellationToken);
 
